@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>إرسال بريد HTML جماعي</title>
+  <style>
+    body { font-family: Arial; max-width: 700px; margin: 30px auto; padding: 20px; }
+    textarea, input { width: 100%; padding: 8px; margin-top: 5px; }
+    button { padding: 10px 20px; background: #2c7; color: white; border: none; cursor: pointer; }
+    pre { background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h2>إرسال بريد HTML جماعي</h2>
+  <form id="mailForm">
+    <label>المستلمون (واحد لكل سطر):</label>
+    <textarea id="recipients" rows="4" placeholder="a@test.com&#10;b@test.com"></textarea>
+
+    <label>الموضوع:</label>
+    <input type="text" id="subject" value="رسالة تجريبية">
+
+    <label>محتوى HTML:</label>
+    <textarea id="htmlContent" rows="8"><h1>مرحباً</h1><p style="color:blue;">هذه رسالة <strong>HTML</strong>.</p></textarea>
+
+    <br><br>
+    <button type="submit">إرسال</button>
+  </form>
+  <pre id="result"></pre>
+
+  <script>
+    document.getElementById('mailForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const recipients = document.getElementById('recipients').value
+        .split('\n').map(s => s.trim()).filter(Boolean);
+      const subject = document.getElementById('subject').value;
+      const html = document.getElementById('htmlContent').value;
+
+      const res = await fetch('http://localhost:3000/send-bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipients, subject, html })
+      });
+      const data = await res.json();
+      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>
